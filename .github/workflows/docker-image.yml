@@ -60,11 +60,14 @@ jobs:
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
-        password: ${{ secrets.PAT }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and push Docker image
       id: fedora
       uses: docker/build-push-action@v5
+      permissions:
+        contents: read
+        packages: write
       with:
         context: .
         file: packaging/docker/Dockerfile.fedora

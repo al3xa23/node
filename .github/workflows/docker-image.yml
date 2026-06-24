@@ -12,50 +12,11 @@ jobs:
 
     runs-on: ubuntu-latest
     name: "prepare:docker [${{ matrix.name }}]"
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - name: ubuntu
-            docker_file: packaging/docker/Dockerfile.ubuntu
-            target: dev
-            image: registry.git.rwth-aachen.de/acs/public/villas/node/dev-ubuntu
-            extra_tag: ""
-          - name: debian
-            docker_file: packaging/docker/Dockerfile.debian
-            target: dev
-            image: registry.git.rwth-aachen.de/acs/public/villas/node/dev-debian
-            extra_tag: ""
-          - name: rocky
-            docker_file: packaging/docker/Dockerfile.rocky
-            target: dev
-            image: registry.git.rwth-aachen.de/acs/public/villas/node/dev-rocky
-            extra_tag: ""
-          - name: rocky9
-            docker_file: packaging/docker/Dockerfile.rocky9
-            target: dev
-            image: registry.git.rwth-aachen.de/acs/public/villas/node/dev-rocky9
-            extra_tag: ""
-          - name: fedora
-            docker_file: packaging/docker/Dockerfile.fedora
-            target: dev
-            image: registry.git.rwth-aachen.de/acs/public/villas/node/dev-fedora
-            extra_tag: registry.git.rwth-aachen.de/acs/public/villas/node/dev
-          - name: fedora-minimal
-            docker_file: packaging/docker/Dockerfile.fedora-minimal
-            target: dev
-            image: registry.git.rwth-aachen.de/acs/public/villas/node/dev-fedora-minimal
-            extra_tag: ""
-          - name: fedora-vscode
-            docker_file: packaging/docker/Dockerfile.fedora
-            target: dev-vscode
-            image: registry.git.rwth-aachen.de/acs/public/villas/node/dev-vscode
-            extra_tag: ""
-            
+                
     steps:
     - uses: actions/checkout@v4
     - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+      run: docker build . --file packaging/docker/Dockerfile.fedora --tag my-image-name:$(date +%s)
 
     - uses: actions/checkout@v4
       with:

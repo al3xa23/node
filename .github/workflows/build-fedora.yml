@@ -4,7 +4,6 @@ on:
   push:
     branches: [ "master" ]
   pull_request:
-    branches: [ "master" ]
 
 env:
   GIT_SUBMODULE_STRATEGY: recursive
@@ -42,7 +41,7 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    containter: ghcr.io/${{ github.repository_owner }}/fedora
+    container: ghcr.io/${{ github.repository_owner }}/fedora
     permissions:
       contents: read
       packages: write

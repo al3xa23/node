@@ -1,0 +1,47 @@
+name: Build Image
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Build und Push Docker image
+      id: fedora
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: packaging/docker/Dockerfile.fedora
+        push: true
+        tags: ghcr.io/${{ github.repository_owner }}/fedora
+        cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/fedora:cache
+        cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/fedora:cache,mode=max
+
+    - name: Verify build artifacts
+      run: |
+        ls -l build || echo "Build directory not found"
+
+    - name: Set up library path
+      run: |
+        export LD_LIBRARY_PATH=/build/lib:$LD_LIBRARY_PATH
+        echo "LD_LIBRARY_PATH set to $LD_LIBRARY_PATH"
+
+    - name: Verify library
+      run: |
+        ls -l /build/lib/libvillas.so.1 || echo "Library not found"
+
+    - name: Debug build directory
+      run: |
+        find / -name "libvillas.so*" || echo "Library not found"

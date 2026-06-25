@@ -122,6 +122,8 @@ RUN --mount=type=cache,id=${DISTRO}-${FEDORA_VERSION}-${ARCH}-${REF},target=/vil
 	${CMAKE_OPTS} .. && \
 	make -j$(nproc) install && \
 	ldconfig
+	
+RUN find /villas/build -name "libvillas.so*" || echo "Library not found" 
 
 WORKDIR /villas
 

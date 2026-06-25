@@ -84,3 +84,7 @@ jobs:
     - name: Verify library
       run: |
         ls -l /build/lib/libvillas.so.1 || echo "Library not found"
+
+        - name: Debug build directory
+      run: |
+        find / -name "libvillas.so*" || echo "Library not found"

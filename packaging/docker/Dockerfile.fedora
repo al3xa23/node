@@ -115,16 +115,19 @@ ARG CMAKE_OPTS
 COPY . /villas/
 
 WORKDIR /villas/build
-RUN --mount=type=cache,id=${DISTRO}-${FEDORA_VERSION}-${ARCH}-${REF},target=/villas/build \
-	cmake \
-	-DCMAKE_CXX_COMPILER=g++-14 \
-	-DCMAKE_C_COMPILER=gcc-14 \
-	${CMAKE_OPTS} .. && \
-	make -j$(nproc) install && \
-	ldconfig
+# RUN --mount=type=cache,id=${DISTRO}-${FEDORA_VERSION}-${ARCH}-${REF},target=/villas/build \
+# 	cmake \
+# 	-DCMAKE_CXX_COMPILER=g++-14 \
+# 	-DCMAKE_C_COMPILER=gcc-14 \
+# 	${CMAKE_OPTS} .. && \
+# 	make -j$(nproc) install && \
+# 	ldconfig
+# Run cmake to configure and build the project
+RUN cmake -S .. -B . -DCMAKE_BUILD_TYPE=Release ${CMAKE_OPTS} && \
+    cmake --build . && \
+    make install && \
+    ldconfig
 	
-RUN find /villas/build -name "libvillas.so*" || echo "Library not found" 
-
 WORKDIR /villas
 
 ENTRYPOINT ["villas"]

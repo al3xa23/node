@@ -130,7 +130,7 @@ RUN cmake -S .. -B . -DCMAKE_BUILD_TYPE=Release ${CMAKE_OPTS} && \
 	
 WORKDIR /villas
 
-ENTRYPOINT ["villas"]
+ENTRYPOINT [":/build/src/villas-node"]
 
 LABEL \
 	org.label-schema.schema-version="1.0" \

@@ -6,37 +6,6 @@ on:
   pull_request:
     branches: [ "master" ]
 
-env:
-  GIT_SUBMODULE_STRATEGY: recursive
-  GIT_DEPTH: 0
-  DISTRO: fedora # Standard distribution
-  DOCKER_FILE: packaging/docker/Dockerfile.${DISTRO}
-  DOCKER_TAG: ${CI_COMMIT_REF_NAME}
-  DOCKER_IMAGE: registry.git.rwth-aachen.de/acs/public/villas/node
-  DOCKER_IMAGE_DEV: ${DOCKER_IMAGE}/dev-${DISTRO}
-  DOCKER_CLI_EXPERIMENTAL: enabled
-  CMAKE_BUILD_OPTS: "--parallel 16"
-  CMAKE_EXTRA_OPTS: "-DCMAKE_BUILD_TYPE=Release"
-  CMAKE_EXTRA_OPTS_FEDORA_MINIMAL: >
-    -DVILLAS_COMPILE_WARNING_AS_ERROR=ON
-    -DWITH_API=OFF
-    -DWITH_CLIENTS=OFF
-    -DWITH_CONFIG=OFF
-    -DWITH_DOC=OFF
-    -DWITH_FPGA=OFF
-    -DWITH_GRAPHVIZ=OFF
-    -DWITH_HOOKS=OFF
-    -DWITH_LUA=OFF
-    -DWITH_OPENMP=OFF
-    -DWITH_PLUGINS=OFF
-    -DWITH_SRC=OFF
-    -DWITH_TESTS=OFF
-    -DWITH_TOOLS=OFF
-    -DWITH_WEB=OFF
-    -DCMAKE_MODULE_PATH=/usr/local/lib64/cmake
-    -DCMAKE_PREFIX_PATH=/usr/local
-  CACHIX_CACHE_NAME: villas
-
 jobs:
 
   build:
@@ -60,34 +29,25 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
         
-    - name: Build und Push Docker image
+    - name: Build Docker image
       id: fedora
       uses: docker/build-push-action@v5
       with:
         context: .
         file: packaging/docker/Dockerfile.fedora
+        push: false
+        tags: ghcr.io/${{ github.repository_owner }}/fedora:latest
+
+    - name: Run cmake inside the container
+      run: |
+        docker run --rm \
+          ghcr.io/${{ github.repository_owner }}/fedora:latest \
+          bash -c "cmake -S /villas -B /villas/build -DCMAKE_BUILD_TYPE=Release && cmake --build /villas/build"
+
+    - name: Push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: packaging/docker/Dockerfile.fedora
         push: true
-        tags: ghcr.io/${{ github.repository_owner }}/fedora
-        cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/fedora:cache
-        cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/fedora:cache,mode=max
-
-    - name: Verify build artifacts
-      container: ghcr.io/${{ github.repository_owner }}/fedora
-      run: |
-        ls -l build || echo "Build directory not found"
-
-    - name: Set up library path
-      container: ghcr.io/${{ github.repository_owner }}/fedora
-      run: |
-        export LD_LIBRARY_PATH=/build/lib:$LD_LIBRARY_PATH
-        echo "LD_LIBRARY_PATH set to $LD_LIBRARY_PATH"
-
-    - name: Verify library
-      container: ghcr.io/${{ github.repository_owner }}/fedora
-      run: |
-        ls -l /build/lib/libvillas.so.1 || echo "Library not found"
-
-    - name: Debug build directory
-      container: ghcr.io/${{ github.repository_owner }}/fedora
-      run: |
-        find / -name "libvillas.so*" || echo "Library not found"
+        tags: ghcr.io/${{ github.repository_owner }}/fedora:latest

@@ -65,30 +65,19 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build Docker image
+    - name: Build und Push Docker image
       id: fedora
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        file: packaging/docker/Dockerfile.fedora
-        push: false
-        tags: ghcr.io/${{ github.repository_owner }}/fedora
-        cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/fedora:cache
-        cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/fedora:cache,mode=max
-    
-    - name: Build source
-      container: ghcr.io/${{ github.repository_owner }}/fedora
-      run: |
-        cmake -S . -B build ${CMAKE_OPTS} ${CMAKE_EXTRA_OPTS}
-        cmake --build build ${CMAKE_BUILD_OPTS}
-
-    - name: Push Docker image
       uses: docker/build-push-action@v5
       with:
         context: .
         file: packaging/docker/Dockerfile.fedora
         push: true
         tags: ghcr.io/${{ github.repository_owner }}/fedora
+        cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/fedora:cache
+        cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/fedora:cache,mode=max
+      run: |
+        cmake -S . -B build ${CMAKE_OPTS} ${CMAKE_EXTRA_OPTS}
+        cmake --build build ${CMAKE_BUILD_OPTS}
 
     - name: Verify build artifacts
       run: |

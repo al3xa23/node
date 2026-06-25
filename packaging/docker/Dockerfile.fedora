@@ -47,7 +47,6 @@ RUN dnf -y install \
 	jansson-devel \
 	libconfig-devel \
 	libcurl-devel \
-	curl \
 	libibverbs-devel \
 	libmodbus-devel \
 	# nanomsg-devel \ # TODO: v1.2.1 seems broken. Re-enable once new version is available
